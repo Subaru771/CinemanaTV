@@ -1,0 +1,2 @@
+1865bef3312c0aef49ebb94e3857097facd40a04c390e5425f9973d7bf63edac  CinemanaTV-v1.4.2.apk
+c0d9cb64ac81ae7da5e4d09bb4926153f6b82391a7ba8d7c06556a98c336d1d3  CinemanaTV-v1.4.2-SOURCE.zip
