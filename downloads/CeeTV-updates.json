@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "tv": {
+    "applicationId": "app.cinemanatv.cee",
+    "enabled": true,
+    "versionCode": 6,
+    "version": "1.1.0",
+    "downloadUrl": "https://raw.githubusercontent.com/Subaru771/CinemanaTV/main/downloads/CeeTV-v1.1.0.apk",
+    "sha256": "ced6978232e063d22a17987acb786511fbf929db0f2f3dc18dd086c5dbdb3341",
+    "notes": {
+      "en": "Refined green interface, new logo and startup, seven category collections, paged browsing, Telegram and update notices.",
+      "ar": "واجهة خضراء محسّنة وشعار وشاشة بدء جديدان وأقسام للفهرس وصفحات إضافية وتيليگرام وتنبيهات التحديث."
+    }
+  }
+}
