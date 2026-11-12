@@ -76,7 +76,7 @@ jobs:
                   patched = patched.replace('listOrNull(block)', 'listOrNull(maxItems, block)')
           assert "private suspend fun list(maxItems:" in patched, "list helper was not updated"
           assert "private suspend fun listOrNull(maxItems:" in patched, "listOrNull helper was not updated"
-                    repo.write_text(patched, encoding="utf-8")
+          repo.write_text(patched, encoding="utf-8")
           assert "maxItems = 2_000" in patched
           print("Episode cap fix applied")
           PY
