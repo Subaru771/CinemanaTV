@@ -1,0 +1,81 @@
+name: Build CinemanaTV 120-episode-fix APK
+
+on:
+  push:
+    branches:
+      - build/episode-120-fix
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install Android SDK
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Extract source and apply episode cap fix
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/cinemanatv-src"
+          unzip -q downloads/CinemanaTV-v1.4.3-SOURCE.zip -d "$RUNNER_TEMP/cinemanatv-src"
+          PROJECT_FILE="$(find "$RUNNER_TEMP/cinemanatv-src" -name settings.gradle.kts -print -quit)"
+          test -n "$PROJECT_FILE"
+          PROJECT_DIR="$(dirname "$PROJECT_FILE")"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          python3 - "$PROJECT_DIR" <<'PY'
+          from pathlib import Path
+          import re
+          import sys
+          root = Path(sys.argv[1])
+          candidates = list(root.rglob("Repository.kt"))
+          matches = [p for p in candidates if "app/cinemanatv/data" in str(p).replace("\\", "/")]
+          repo = matches[0] if matches else (candidates[0] if candidates else None)
+          if repo is None:
+              raise SystemExit("Repository.kt not found")
+          src = repo.read_text(encoding="utf-8")
+          print("Repository:", repo)
+          forms = [
+              (r'\blist\s*\{\s*api\.episodes\s*\(', 'list(maxItems = 2_000) { api.episodes('),
+              (r'\blistOrNull\s*\{\s*api\.episodes\s*\(', 'listOrNull(maxItems = 2_000) { api.episodes('),
+          ]
+          patched = src
+          for pattern, replacement in forms:
+              patched, n = re.subn(pattern, replacement, patched)
+              if n:
+                  break
+          if patched == src and 'maxItems = 2_000) { api.episodes(' not in src:
+              # Some older source revisions pass maxItems as an explicit argument.
+              patched, n = re.subn(r'(api\.episodes\s*\([^)]*\)[\s\S]{0,140}?)maxItems\s*=\s*120', r'\1maxItems = 2_000', src, count=1)
+          if patched == src and 'maxItems = 2_000) { api.episodes(' not in src:
+              raise SystemExit("No supported episode list cap found; cannot safely build as fixed")
+          repo.write_text(patched, encoding="utf-8")
+          assert "maxItems = 2_000" in patched
+          print("Episode cap fix applied")
+          PY
+      - name: Build debug-signed APK
+        shell: bash
+        run: |
+          cd "$PROJECT_DIR"
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n 1)"
+          test -n "$APK"
+          mkdir -p "$GITHUB_WORKSPACE/fixed-apk"
+          cp "$APK" "$GITHUB_WORKSPACE/fixed-apk/CinemanaTV-v1.4.3-120-Episodes-FIXED.apk"
+          cd "$GITHUB_WORKSPACE/fixed-apk"
+          sha256sum CinemanaTV-v1.4.3-120-Episodes-FIXED.apk > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CinemanaTV-120-Episodes-FIXED
+          path: fixed-apk/
+          if-no-files-found: error
