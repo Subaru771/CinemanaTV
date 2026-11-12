@@ -61,7 +61,22 @@ jobs:
               patched, n = re.subn(r'(api\.episodes\s*\([^)]*\)[\s\S]{0,140}?)maxItems\s*=\s*120', r'\1maxItems = 2_000', src, count=1)
           if patched == src and 'maxItems = 2_000) { api.episodes(' not in src:
               raise SystemExit("No supported episode list cap found; cannot safely build as fixed")
-          repo.write_text(patched, encoding="utf-8")
+          # Backport the maxItems argument to the older repository helpers.
+          if "private suspend fun listOrNull(maxItems:" not in patched:
+              patched, helper_count = re.subn(
+                  r'(private\s+suspend\s+fun\s+listOrNull)\(\s*block:\s*suspend\s*\(\)\s*->\s*JsonElement\s*\)',
+                  r'\1(maxItems: Int = 120, block: suspend () -> JsonElement)', patched)
+              if helper_count:
+                  patched = patched.replace('Payloads.videos(block())', 'Payloads.videos(block(), maxItems)')
+          if "private suspend fun list(maxItems:" not in patched:
+              patched, helper_count = re.subn(
+                  r'(private\s+suspend\s+fun\s+list)\(\s*block:\s*suspend\s*\(\)\s*->\s*JsonElement\s*\)',
+                  r'\1(maxItems: Int = 120, block: suspend () -> JsonElement)', patched)
+              if helper_count:
+                  patched = patched.replace('listOrNull(block)', 'listOrNull(maxItems, block)')
+          assert "private suspend fun list(maxItems:" in patched, "list helper was not updated"
+          assert "private suspend fun listOrNull(maxItems:" in patched, "listOrNull helper was not updated"
+                    repo.write_text(patched, encoding="utf-8")
           assert "maxItems = 2_000" in patched
           print("Episode cap fix applied")
           PY
