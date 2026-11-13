@@ -3,13 +3,13 @@
   "tv": {
     "applicationId": "app.cinemanatv.cee",
     "enabled": true,
-    "versionCode": 10,
-    "version": "1.2.1",
-    "downloadUrl": "https://raw.githubusercontent.com/Subaru771/CinemanaTV/main/downloads/CeeTV-v1.2.1.apk",
-    "sha256": "ead341e5d9e5ed6dcfafbc839b11710fe126e17c490472b3ac0448adc351ae4e",
+    "versionCode": 11,
+    "version": "1.2.2",
+    "downloadUrl": "https://raw.githubusercontent.com/Subaru771/CinemanaTV/main/downloads/CeeTV-v1.2.2.apk",
+    "sha256": "4411d3f107c2e9307e67dd8c6344a53cda05a519ca26fd735d09481eda6cf861",
     "notes": {
-      "en": "Touch support, reliable viewing/download quality discovery, chronological episodes and corrected series resume.",
-      "ar": "دعم اللمس وتحسين دقات المشاهدة والتنزيل وترتيب الحلقات وتصحيح استئناف المسلسلات."
+      "en": "Fix missing numbered qualities, merge provider and player metadata, improve viewing/download quality discovery and recognize current direct-file routes.",
+      "ar": "إصلاح ظهور دقات المشاهدة والتنزيل وتحسين اكتشاف الجودات ودعم روابط الفيديو الحالية."
     }
   }
 }
