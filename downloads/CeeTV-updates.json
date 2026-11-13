@@ -3,13 +3,13 @@
   "tv": {
     "applicationId": "app.cinemanatv.cee",
     "enabled": true,
-    "versionCode": 11,
-    "version": "1.2.2",
-    "downloadUrl": "https://raw.githubusercontent.com/Subaru771/CinemanaTV/main/downloads/CeeTV-v1.2.2.apk",
-    "sha256": "4411d3f107c2e9307e67dd8c6344a53cda05a519ca26fd735d09481eda6cf861",
+    "versionCode": 12,
+    "version": "1.3.0",
+    "downloadUrl": "https://raw.githubusercontent.com/Subaru771/CinemanaTV/main/downloads/CeeTV-v1.3.0.apk",
+    "sha256": "a46296c1d7f0b50eebcac35befc7a15f76a4a707f642b75f1fe6e011885e244f",
     "notes": {
-      "en": "Fix missing numbered qualities, merge provider and player metadata, improve viewing/download quality discovery and recognize current direct-file routes.",
-      "ar": "إصلاح ظهور دقات المشاهدة والتنزيل وتحسين اكتشاف الجودات ودعم روابط الفيديو الحالية."
+      "en": "Responsive phone browsing and touch controls; reliable quality refresh, exact offline resolution, shared startup loading and separate language caches.",
+      "ar": "تحسين واجهة الهاتف واللمس، وثبات خيارات الجودة ودقة التنزيل، وتوحيد طلبات البدء وفصل ذاكرة التخزين لكل لغة."
     }
   }
 }
