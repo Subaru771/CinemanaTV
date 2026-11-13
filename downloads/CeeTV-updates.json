@@ -3,13 +3,13 @@
   "tv": {
     "applicationId": "app.cinemanatv.cee",
     "enabled": true,
-    "versionCode": 8,
-    "version": "1.1.2",
-    "downloadUrl": "https://raw.githubusercontent.com/Subaru771/CinemanaTV/main/downloads/CeeTV-v1.1.2.apk",
-    "sha256": "b4889aeda66a58ef5614bdfc27a0e7d50c067ddefe7b47edb3079809773b7f95",
+    "versionCode": 9,
+    "version": "1.2.0",
+    "downloadUrl": "https://raw.githubusercontent.com/Subaru771/CinemanaTV/main/downloads/CeeTV-v1.2.0.apk",
+    "sha256": "00372c954713a3e9a4fda27610c2289f856d8c12e48fa42c41a7f74d41863c95",
     "notes": {
-      "en": "Partial catalogue recovery, HLS quality/download choices, stronger stream fallback, direct download retry and revised TV layouts.",
-      "ar": "تحسين تحميل الفهرس وخيارات دقة البث والتنزيل واستعادة التشغيل وإعادة محاولة التنزيل وواجهة التلفاز."
+      "en": "New TV navigation, cancellable streaming requests, resilient HLS checks, preserved browsing position, richer quality details and private playback reports.",
+      "ar": "تنقل جديد للتلفاز وتحسين طلبات البث وفحص المصادر وحفظ موضع التصفح وتفاصيل الدقة وتقارير مشاكل التشغيل."
     }
   }
 }
