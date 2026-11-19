@@ -1,0 +1,82 @@
+name: Phone APK install and touchscreen smoke test
+on:
+  workflow_dispatch:
+  push:
+    branches: [mobile/cinemanatv-1.6.5]
+    paths:
+      - '.github/workflows/smoke-cinemana-mobile.yml'
+permissions:
+  contents: read
+jobs:
+  phone-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract phone source
+        run: |
+          mkdir mobile-workspace
+          unzip -q mobile/CinemanaTV-Phone-v1.6.5-SOURCE.zip -d mobile-workspace
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Android SDK platforms
+        run: |
+          set -e
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n 1)"
+          "$SDKMANAGER" --install 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build phone debug and minified release
+        working-directory: mobile-workspace
+        run: bash ./gradlew --no-daemon assembleDebug assembleRelease
+      - name: Android phone emulator, launch, and touch test
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_4
+          disable-animations: true
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
+          script: |
+            set -eu
+            mkdir -p phone-smoke-results
+            adb shell wm size > phone-smoke-results/emulator-display.txt
+            for variant in debug release; do
+              echo "Testing $variant"
+              adb install -r "mobile-workspace/app/build/outputs/apk/$variant/app-$variant.apk" | tee "phone-smoke-results/install-$variant.txt"
+              adb logcat -c
+              adb shell am force-stop app.cinemanatv.mobile || true
+              adb shell am start -W -n app.cinemanatv.mobile/app.cinemanatv.MainActivity | tee "phone-smoke-results/start-$variant.txt"
+              sleep 12
+              adb shell input tap 420 2050
+              sleep 2
+              adb shell input tap 920 130
+              sleep 2
+              adb shell input tap 520 330
+              adb shell input text Mentalist
+              sleep 2
+              adb shell input keyevent 4
+              adb shell screencap -p /sdcard/cinemana-$variant.png
+              adb pull /sdcard/cinemana-$variant.png "phone-smoke-results/$variant.png"
+              adb logcat -d -v time > "phone-smoke-results/logcat-$variant.txt"
+              adb shell pidof app.cinemanatv.mobile > "phone-smoke-results/pid-$variant.txt" || true
+              adb shell dumpsys activity activities > "phone-smoke-results/activity-$variant.txt"
+              if grep -E "FATAL EXCEPTION|Process: app\.cinemanatv\.mobile" "phone-smoke-results/logcat-$variant.txt"; then
+                echo "Runtime crash in $variant"
+                exit 1
+              fi
+              if [ ! -s "phone-smoke-results/pid-$variant.txt" ]; then
+                echo "App exited unexpectedly in $variant"
+                exit 1
+              fi
+            done
+      - name: Upload emulator findings and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: CinemanaTV-Phone-Emulator-Screenshots-and-Logs
+          path: phone-smoke-results/
+          if-no-files-found: warn
+          retention-days: 10
