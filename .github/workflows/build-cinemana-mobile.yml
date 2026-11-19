@@ -1,0 +1,47 @@
+name: Build CinemanaTV Android Phone APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [mobile/cinemanatv-1.6.5]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/build-cinemana-mobile.yml'
+permissions:
+  contents: read
+jobs:
+  android-phone:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract mobile source
+        run: |
+          mkdir mobile-workspace
+          unzip -q 'mobile/CinemanaTV-Phone-v1.6.5-SOURCE.zip' -d mobile-workspace
+          test -f mobile-workspace/app/build.gradle.kts
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK
+        run: sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Compile and test
+        working-directory: mobile-workspace
+        env:
+          CINEMANA_CLIENTID: ${{ secrets.CINEMANA_CLIENTID }}
+          CINEMANA_SCOPE: ${{ secrets.CINEMANA_SCOPE }}
+        run: bash ./gradlew --no-daemon testDebugUnitTest assembleRelease
+      - name: Verify APK and hash
+        run: |
+          mkdir -p output
+          cp mobile-workspace/app/build/outputs/apk/release/app-release.apk output/CinemanaTV-Phone-v1.6.5.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose output/CinemanaTV-Phone-v1.6.5.apk
+          ( cd output && sha256sum CinemanaTV-Phone-v1.6.5.apk > SHA256.txt )
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CinemanaTV-Phone-v1.6.5-APK
+          path: output/
+          if-no-files-found: error
+          retention-days: 30
