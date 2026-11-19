@@ -17,7 +17,7 @@ jobs:
       - name: Extract mobile source
         run: |
           mkdir mobile-workspace
-          unzip -q 'mobile/CinemanaTV-Phone-v1.6.5-SOURCE.zip' -d mobile-workspace
+          unzip -q 'mobile/CinemanaTV-Phone-v1.6.6-Touch-Fix-SOURCE.zip' -d mobile-workspace
           test -f mobile-workspace/app/build.gradle.kts
       - uses: actions/setup-java@v4
         with:
@@ -42,12 +42,12 @@ jobs:
       - name: Verify APK and hash
         run: |
           mkdir -p output
-          cp mobile-workspace/app/build/outputs/apk/release/app-release.apk output/CinemanaTV-Phone-v1.6.5.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose output/CinemanaTV-Phone-v1.6.5.apk
-          ( cd output && sha256sum CinemanaTV-Phone-v1.6.5.apk > SHA256.txt )
+          cp mobile-workspace/app/build/outputs/apk/release/app-release.apk output/CinemanaTV-Phone-v1.6.6.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose output/CinemanaTV-Phone-v1.6.6.apk
+          ( cd output && sha256sum CinemanaTV-Phone-v1.6.6.apk > SHA256.txt )
       - uses: actions/upload-artifact@v4
         with:
-          name: CinemanaTV-Phone-v1.6.5-APK
+          name: CinemanaTV-Phone-v1.6.6-Touch-Fix-APK
           path: output/
           if-no-files-found: error
           retention-days: 30

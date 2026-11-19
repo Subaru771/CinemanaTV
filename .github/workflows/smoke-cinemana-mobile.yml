@@ -5,6 +5,7 @@ on:
     branches: [mobile/cinemanatv-1.6.5]
     paths:
       - '.github/workflows/smoke-cinemana-mobile.yml'
+      - 'mobile/**'
 permissions:
   contents: read
 jobs:
@@ -16,7 +17,7 @@ jobs:
       - name: Extract phone source
         run: |
           mkdir mobile-workspace
-          unzip -q mobile/CinemanaTV-Phone-v1.6.5-SOURCE.zip -d mobile-workspace
+          unzip -q mobile/CinemanaTV-Phone-v1.6.6-Touch-Fix-SOURCE.zip -d mobile-workspace
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
