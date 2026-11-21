@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "tv": {
+    "enabled": false,
+    "version": "1.21",
+    "versionCode": 127,
+    "downloadUrl": "https://github.com/Subaru771/CinemanaTV",
+    "notes": {
+      "en": "CinemanaTV 1.21: faster browsing, complete episode lists and no alternative sources.",
+      "ar": "سينمانا TV 1.21: تصفح أسرع، حلقات أكثر، وإزالة المصادر البديلة."
+    }
+  }
+}
