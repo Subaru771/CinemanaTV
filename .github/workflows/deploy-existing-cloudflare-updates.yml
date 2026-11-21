@@ -1,0 +1,80 @@
+name: Deploy Existing Cinemana Updates Cloudflare Site
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'updates/cloudflare.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: production-cinemana-updates-e8l
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Check Cloudflare account authorization
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          test -n "$CF_ACCOUNT_ID" || { echo "::error::Set CLOUDFLARE_ACCOUNT_ID in repository Actions secrets"; exit 1; }
+          test -n "$CF_API_TOKEN" || { echo "::error::Set CLOUDFLARE_API_TOKEN (Cloudflare Pages Edit) in repository Actions secrets"; exit 1; }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate TV/iOS manifest without changing production
+        run: |
+          python3 tools/build_existing_cloudflare_updates.py prepare
+          python3 -m json.tool cloudflare-updates/updates.json > /dev/null
+          test -s cloudflare-updates/index.html
+      - name: Validate existing Cloudflare Pages project
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request
+          account = os.environ["CLOUDFLARE_ACCOUNT_ID"]
+          url = "https://api.cloudflare.com/client/v4/accounts/" + account + "/pages/projects/cinemana-updates-e8l"
+          request = urllib.request.Request(url, headers={"Authorization": "Bearer " + os.environ["CLOUDFLARE_API_TOKEN"]})
+          try:
+              with urllib.request.urlopen(request, timeout=20) as response:
+                  data = json.load(response)
+          except Exception as ex:
+              raise SystemExit("Cannot access existing Cloudflare project cinemana-updates-e8l. Refusing to create another project.") from ex
+          if not data.get("success") or data.get("result", {}).get("name") != "cinemana-updates-e8l":
+              raise SystemExit("Project mismatch; refusing to deploy.")
+          print("Verified existing Cloudflare Pages project cinemana-updates-e8l.")
+          PY
+      - name: Deploy dashboard and existing /updates.json to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx --yes wrangler@4 pages deploy cloudflare-updates \
+            --project-name cinemana-updates-e8l \
+            --branch main
+      - name: Mirror TV feed for CinemanaTV 1.21 and newer
+        run: |
+          python3 tools/build_existing_cloudflare_updates.py sync
+          git add updates/tv.json
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Sync TV update announcements with Cloudflare"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          else
+            echo "TV update feed already synchronized."
+          fi
