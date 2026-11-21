@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1014">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://api.github.com https://raw.githubusercontent.com; img-src 'none'; font-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<title>CinemanaTV — Update Control</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0b1014;color:#e9f0f2;font-size:14px}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse 80% 45% at 50% -20%,#172e2c,transparent 90%),#0b1014;min-height:100vh}
+button,input,textarea{font:inherit}button{cursor:pointer}a{color:#91cfc4;text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1130px;margin:0 auto;padding:30px 24px 65px}.top{display:flex;gap:13px;align-items:center;margin-bottom:28px}
+.logo{display:grid;place-items:center;width:44px;height:44px;background:#1b4e43;border:1px solid #297864;border-radius:14px;font-size:25px;color:#b8f3df}
+.title{font-size:19px;letter-spacing:-.5px;font-weight:760}.sub{color:#879c9c;font-size:12px;margin-top:3px}.top .grow{flex:1}
+.pill{font-size:11px;font-weight:700;letter-spacing:.04em;border:1px solid #33484a;background:#18282b;color:#acc6c4;border-radius:99px;padding:7px 10px;display:inline-flex;align-items:center;gap:7px}
+.pill i{width:7px;height:7px;background:#adbfba;border-radius:50%}.pill.live i{background:#70d3ad}.pill.bad i{background:#ef9985}
+.layout{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(300px,.88fr);gap:18px;align-items:start}
+.card{border:1px solid #253238;background:linear-gradient(135deg,#131c21,#11191e);border-radius:19px;box-shadow:0 14px 36px #0002}
+.cardhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:19px 20px 14px}
+h2{font-size:15px;letter-spacing:-.2px;font-weight:720;margin:0}.muted{font-size:12px;color:#91a6a7;line-height:1.5}.pad{padding:0 20px 20px}.field{display:flex;flex-direction:column;gap:8px;margin-top:17px}
+.field label{font-size:12px;font-weight:650;color:#c5d5d6}.field small{font-size:11px;color:#788f92;line-height:1.5}
+input:not([type=checkbox]),textarea{border:1px solid #304147;outline:0;border-radius:10px;background:#0d1519;color:#eaf3f5;width:100%;padding:12px 12px;transition:.15s border-color}
+input:focus,textarea:focus{border-color:#6dbba7;box-shadow:0 0 0 3px #79c9b51f}textarea{min-height:75px;resize:vertical;line-height:1.55}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.toggleline{display:flex;align-items:center;gap:14px;padding:15px;border-radius:12px;background:#102724;border:1px solid #2a5147;margin-top:12px}
+.toggleline .spacer{flex:1}.switch{position:relative;width:45px;height:26px;flex:0 0 45px}.switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}.rail{display:block;pointer-events:none;width:45px;height:26px;border-radius:99px;background:#455054;border:1px solid #53676a;transition:.2s}
+.rail:before{content:"";position:absolute;width:18px;height:18px;border-radius:50%;left:4px;top:4px;background:#cedad9;transition:.2s}
+.switch input:checked+.rail{background:#49bb91;border-color:#49bb91}.switch input:checked+.rail:before{transform:translateX(19px);background:#092018}
+.switch input:focus-visible+.rail{outline:2px solid white;outline-offset:3px}.line{height:1px;background:#243136;margin:20px 0}
+.btn{border:1px solid #394a4e;color:#e2edef;background:#1a272b;border-radius:10px;padding:11px 15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.15s}
+.btn:hover:not(:disabled){background:#24353a}.btn:disabled{cursor:not-allowed;opacity:.52}.btn.primary{background:#7dd9b4;color:#0b211b;border-color:#7dd9b4}.btn.primary:hover:not(:disabled){background:#9be8c9}.btn.ghost{background:transparent}.btn.full{width:100%}
+.actionrow{display:flex;gap:10px;flex-wrap:wrap}.actionrow .primary{flex:1}
+.labelstat{font-size:11px;font-weight:700;letter-spacing:.04em;color:#819798;text-transform:uppercase}
+.connection{padding:17px 20px 20px;border-bottom:1px solid #243136}
+.connectrow{display:flex;gap:9px;margin-top:10px}.connectrow input{min-width:0}.connected{display:none;align-items:center;gap:10px;margin-top:12px;color:#8ddeba;font-size:12px}
+.connected strong{color:#dbf6e8}.connected .grow{flex:1}
+.notice{margin-top:13px;font-size:12px;line-height:1.5;border:1px solid #3d5152;background:#1a2a2d;border-radius:9px;padding:10px 12px;color:#d1e4e3;display:none}
+.notice.good{border-color:#2c6b57;color:#aeeccd}.notice.warn{border-color:#866a40;color:#f3d39a}.notice.err{border-color:#8b4848;color:#ffd0c7}
+.sectionhint{font-size:11px;color:#71948b;background:#12302a;border-radius:99px;padding:5px 9px}
+.preview{position:sticky;top:20px}.previewbody{padding:0 19px 20px}
+.screen{aspect-ratio:16/10;border-radius:13px;border:1px solid #344246;position:relative;overflow:hidden;background:radial-gradient(ellipse at 38% 25%,#20413e 0%,#10272b 52%,#0b171d 100%);display:flex;align-items:center;justify-content:center;padding:18px}
+.screen:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,#09151900,#080c11a8);pointer-events:none}
+.tvmodal{position:relative;width:min(100%,330px);background:#172126;border:1px solid #576969;border-radius:11px;padding:18px;text-align:left;box-shadow:0 18px 65px #000a}
+.tvtitle{font-weight:760;font-size:16px;line-height:1.4}.tvver{font-size:11px;margin:7px 0;color:#8ccfbc}.tvnote{font-size:12px;line-height:1.55;color:#bdced0;white-space:pre-line;max-height:110px;overflow:auto}
+.tvbuttons{margin-top:15px;display:flex;gap:7px}.tvbuttons span{flex:1;text-align:center;border:1px solid #42565a;border-radius:6px;padding:7px 2px;font-weight:600;font-size:10px}.tvbuttons .update{background:#a0e5cd;color:#12221e;border-color:#a0e5cd}
+.previewoff{display:none;position:absolute;inset:0;background:#081015c9;align-items:center;justify-content:center;font-size:13px;text-align:center;padding:18px;color:#c5d6d5}
+.screen.disabled .previewoff{display:flex}
+.tabs{display:flex;gap:5px;padding:4px;border:1px solid #29383d;background:#0e161a;border-radius:9px}
+.tabs button{border:0;padding:6px 10px;color:#9bb0b0;background:transparent;border-radius:6px;font-size:11px;font-weight:700}
+.tabs button.active{background:#2b4440;color:#cbf2df}
+.kv{display:grid;grid-template-columns:90px 1fr;gap:11px;border-bottom:1px solid #263339;padding:12px 0;font-size:12px}
+.kv span:first-child{color:#819798}.kv span:last-child{overflow-wrap:anywhere}
+.statusbar{padding:15px 19px;border-top:1px solid #263339;color:#94a6a6;font-size:12px;line-height:1.5}
+.foot{display:flex;justify-content:space-between;gap:20px;color:#789091;margin-top:20px;font-size:11px;line-height:1.6}
+#loading{font-size:12px;color:#91b3a9}.linkrow{display:flex;gap:15px;flex-wrap:wrap;margin-top:9px;font-size:11px}
+@media(max-width:780px){.layout{grid-template-columns:1fr}.preview{position:static}.screen{aspect-ratio:16/8}.wrap{padding:20px 13px 40px}.top{margin-bottom:19px}.foot{flex-direction:column}}
+@media(max-width:420px){.grid2{grid-template-columns:1fr}.cardhead{padding:16px 15px 12px}.pad,.connection{padding-left:15px;padding-right:15px}.previewbody{padding:0 15px 16px}.screen{aspect-ratio:1/1}.tvmodal{padding:13px}.tvbuttons{gap:4px}.tvbuttons span{font-size:9px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div class="logo" aria-hidden="true">▸</div><div><div class="title">CinemanaTV <span style="color:#79d4ad">/</span> Update Control</div><div class="sub">Manage your Android TV update notices</div></div>
+  <div class="grow"></div><span class="pill" id="feedStatus"><i></i><span id="feedStatusText">Checking feed</span></span>
+</header>
+<main class="layout">
+<section class="card" aria-label="Notification editor">
+  <div class="cardhead"><h2>Update notification</h2><span class="sectionhint">Live configuration</span></div>
+  <div class="pad">
+    <div class="toggleline">
+      <div><div style="font-weight:730">Enable notification</div><div class="muted" style="margin-top:4px">Show when users open CinemanaTV</div></div>
+      <div class="spacer"></div>
+      <label class="switch" aria-label="Enable update notification"><input id="enabled" type="checkbox"><span class="rail"></span></label>
+    </div>
+    <div class="grid2">
+      <div class="field"><label for="version">New version</label><input id="version" maxlength="32" placeholder="1.22" spellcheck="false" autocomplete="off"></div>
+      <div class="field"><label for="code">Android version code</label><input id="code" type="number" min="127" max="2147483647" step="1" inputmode="numeric" placeholder="128"><small>Must be higher than 127 to notify v1.21 users.</small></div>
+    </div>
+    <div class="field"><label for="url">Download link</label><input id="url" type="url" spellcheck="false" placeholder="https://github.com/…/releases/…" autocomplete="off"><small>Use a working public HTTPS APK or release-page link.</small></div>
+    <div class="field"><label for="en">English message <span class="muted" id="enLen">0/240</span></label><textarea id="en" maxlength="240" placeholder="A new update is available."></textarea></div>
+    <div class="field"><label for="ar">Arabic message <span class="muted" id="arLen">0/240</span></label><textarea id="ar" maxlength="240" lang="ar" dir="rtl" placeholder="يتوفر تحديث جديد."></textarea></div>
+    <div class="line"></div>
+    <div class="actionrow"><button id="publish" class="btn primary" type="button">Publish changes</button><button id="reset" class="btn ghost" type="button">Discard</button><button id="next" class="btn ghost" type="button">Next version</button></div>
+    <div class="notice" id="notice" role="status" aria-live="polite"></div>
+  </div>
+  <div class="connection">
+    <div class="labelstat">GitHub connection</div>
+    <div class="muted" style="margin-top:7px">Only someone with repository write access can publish. Paste a fine-grained GitHub token with <strong>Contents: Read and write</strong> permission for <strong>Subaru771/CinemanaTV</strong>. The token stays in this browser tab's memory and is never saved.</div>
+    <div class="connectrow" id="connectRow"><input id="token" type="password" aria-label="GitHub fine-grained token" autocomplete="off" placeholder="github_pat_…" spellcheck="false"><button class="btn" type="button" id="connect">Connect</button></div>
+    <div class="connected" id="connected"><span aria-hidden="true">●</span><span>Authenticated for publishing</span><span class="grow"></span><button type="button" class="btn ghost" id="disconnect">Disconnect</button></div>
+    <div class="linkrow"><a target="_blank" rel="noopener noreferrer" href="https://github.com/settings/personal-access-tokens/new">Create access token</a><a target="_blank" rel="noopener noreferrer" href="https://github.com/Subaru771/CinemanaTV/blob/main/updates/NOTIFICATIONS.md">How it works</a></div>
+  </div>
+</section>
+<aside class="preview" aria-label="Live preview and status">
+ <section class="card">
+  <div class="cardhead"><h2>TV popup preview</h2><div class="tabs" role="group" aria-label="Preview language"><button type="button" id="previewEN" class="active">English</button><button type="button" id="previewAR">العربية</button></div></div>
+  <div class="previewbody">
+   <div class="screen" id="screen"><div class="tvmodal" id="tvmodal"><div class="tvtitle" id="previewTitle"></div><div class="tvver" id="previewVersion"></div><div class="tvnote" id="previewNotes"></div><div class="tvbuttons" id="tvbuttons"></div></div><div class="previewoff" id="previewoff">Notifications are disabled.<br>Enable the switch to preview an active notice.</div></div>
+   <div class="muted" style="margin-top:12px">Live preview only. Changes appear on users' TVs after you publish.</div>
+  </div>
+  <div class="statusbar"><div class="labelstat">Current published state</div><div class="kv"><span>Published</span><span id="pubState">Checking…</span></div><div class="kv"><span>Version</span><span id="pubVersion">—</span></div><div class="kv" style="border:0"><span>Last loaded</span><span id="lastLoaded">—</span></div><div class="linkrow"><a target="_blank" rel="noopener noreferrer" href="https://raw.githubusercontent.com/Subaru771/CinemanaTV/main/updates/tv.json">View live feed</a><a href="#" id="reload">Refresh data</a></div></div>
+ </section>
+</aside>
+</main>
+<footer class="foot"><span>CinemanaTV 1.21+ • In-app alerts on next launch, not background push notifications.</span><span>GitHub-hosted • No tracking • No stored credentials</span></footer>
+</div>
+<script>
+(function(){
+'use strict';
+var OWNER='Subaru771',REPO='CinemanaTV',PATH='updates/tv.json',BRANCH='main',INSTALLED=127;
+var API='https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/'+PATH;
+var RAW='https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/'+BRANCH+'/'+PATH;
+var data=null,fingerprint=null,secret='',language='en',busy=false;
+function el(id){return document.getElementById(id);}
+function safeText(id,value){el(id).textContent=String(value);}
+function notice(message,type){var n=el('notice');n.textContent=message;n.className='notice '+(type||'');n.style.display='block';}
+function feed(status,txt){el('feedStatus').className='pill '+status;safeText('feedStatusText',txt);}
+function isValidUrl(value){try{var u=new URL(value);return u.protocol==='https:'&&!!u.hostname&&!u.username&&!u.password&&value.length<2048;}catch(e){return false;}}
+function getForm(){return {schema:1,tv:{enabled:el('enabled').checked,version:el('version').value.trim(),versionCode:Number(el('code').value),downloadUrl:el('url').value.trim(),notes:{en:el('en').value.trim(),ar:el('ar').value.trim()}}};}
+function apply(x){var p=x.tv||{};el('enabled').checked=p.enabled===true;el('version').value=p.version||'';el('code').value=p.versionCode||'';el('url').value=p.downloadUrl||'';el('en').value=(p.notes&&p.notes.en)||'';el('ar').value=(p.notes&&p.notes.ar)||'';render();}
+function render(){var x=getForm(),p=x.tv;safeText('enLen',p.notes.en.length+'/240');safeText('arLen',p.notes.ar.length+'/240');
+el('screen').classList.toggle('disabled',!p.enabled);el('tvmodal').dir=language==='ar'?'rtl':'ltr';
+safeText('previewTitle',language==='ar'?'تحديث جديد متوفر':'Update available');
+safeText('previewVersion',(language==='ar'?'الإصدار ':'Version ')+(p.version||'—'));
+safeText('previewNotes',p.notes[language]||(language==='ar'?'يتوفر تحديث جديد للتطبيق.':'A new version is available.'));
+var buttons=el('tvbuttons');buttons.replaceChildren();
+(language==='ar'?['تحميل التحديث','ذكرني لاحقاً','تخطي الإصدار']:['Get update','Remind later','Skip version']).forEach(function(t,i){var item=document.createElement('span');item.textContent=t;if(i===0)item.className='update';buttons.appendChild(item);});
+el('previewEN').classList.toggle('active',language==='en');el('previewAR').classList.toggle('active',language==='ar');
+}
+function validate(x){var p=x.tv;if(!p.version||p.version.length>32)return 'Enter a version name (up to 32 characters).';
+if(!Number.isSafeInteger(p.versionCode)||p.versionCode<1||p.versionCode>2147483647)return 'Enter a valid Android version code.';
+if(p.enabled&&p.versionCode<=INSTALLED)return 'To notify v1.21 users, select a new version code of at least 128. Disable the notification to pause it.';
+if(!isValidUrl(p.downloadUrl))return 'Enter a public HTTPS download link.';
+if(p.notes.en.length>240||p.notes.ar.length>240)return 'Each message must be 240 characters or less.';
+if(p.enabled&&(!p.notes.en||!p.notes.ar))return 'Enter both English and Arabic messages before enabling the notice.';
+return '';}
+function decode64(s){var bytes=Uint8Array.from(atob(s.replace(/\s/g,'')),function(c){return c.charCodeAt(0);});return new TextDecoder().decode(bytes);}
+function encode64(s){var bytes=new TextEncoder().encode(s);var binary='';for(var i=0;i<bytes.length;i++)binary+=String.fromCharCode(bytes[i]);return btoa(binary);}
+function authHeaders(){return {'Accept':'application/vnd.github+json','Authorization':'Bearer '+secret,'X-GitHub-Api-Version':'2022-11-28'};}
+async function load(){
+feed('','Loading');try{
+var response=await fetch(RAW+'?t='+Date.now(),{cache:'no-store'});if(!response.ok)throw Error('Could not load update feed ('+response.status+').');
+var x=await response.json();if(!x||x.schema!==1||!x.tv)throw Error('Unexpected update feed format.');
+data=x;fingerprint=JSON.stringify(x);apply(x);safeText('pubState',x.tv.enabled?'Enabled':'Disabled');safeText('pubVersion',(x.tv.version||'—')+' (code '+x.tv.versionCode+')');safeText('lastLoaded',new Date().toLocaleTimeString());feed('live','Feed online');
+}catch(e){feed('bad','Feed offline');notice(e.message+' Try Refresh data.','err');}}
+async function connect(){
+var input=el('token');var t=input.value.trim();if(!t){notice('Enter your GitHub fine-grained access token first.','warn');return;}
+el('connect').disabled=true;try{
+var response=await fetch(API+'?ref=main',{headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+t,'X-GitHub-Api-Version':'2022-11-28'},cache:'no-store'});
+if(!response.ok)throw Error(response.status===401?'Token rejected by GitHub.':response.status===403?'Insufficient repository permission.':'Could not connect to the repository ('+response.status+').');
+var x=await response.json();if(!x.sha)throw Error('GitHub did not return the file SHA.');
+secret=t;input.value='';el('connectRow').style.display='none';el('connected').style.display='flex';notice('Connected. You can now publish changes to the live update feed.','good');
+}catch(e){notice(e.message,'err');}finally{el('connect').disabled=false;}}
+function disconnect(){secret='';el('token').value='';el('connectRow').style.display='flex';el('connected').style.display='none';notice('Disconnected. Your token was not saved.','');}
+async function publish(){
+if(busy)return;var x=getForm(),error=validate(x);if(error){notice(error,'warn');return;}
+if(!secret){notice('Connect your GitHub account below to publish these changes.','warn');el('token').focus();return;}
+if(!data){notice('Refresh the published feed before saving.','warn');return;}
+busy=true;el('publish').disabled=true;safeText('publish','Publishing…');
+try{
+var read=await fetch(API+'?ref=main',{headers:authHeaders(),cache:'no-store'});
+if(!read.ok)throw Error('Could not read live configuration from GitHub ('+read.status+').');
+var meta=await read.json();var published=JSON.parse(decode64(meta.content));
+if(JSON.stringify(published)!==fingerprint)throw Error('The feed changed since you last loaded it. Refresh first to avoid overwriting another edit.');
+var payload=JSON.stringify(x,null,2)+'\n';
+var save=await fetch(API,{method:'PUT',headers:Object.assign({'Content-Type':'application/json'},authHeaders()),body:JSON.stringify({message:'Update CinemanaTV TV notification '+(x.tv.enabled?'enabled ':'disabled ')+x.tv.version,branch:'main',sha:meta.sha,content:encode64(payload)})});
+if(!save.ok){var msg='';try{var body=await save.json();msg=body.message||'';}catch(e){}throw Error('GitHub could not publish ('+save.status+'). '+msg);}
+data=x;fingerprint=JSON.stringify(x);safeText('pubState',x.tv.enabled?'Enabled':'Disabled');safeText('pubVersion',x.tv.version+' (code '+x.tv.versionCode+')');safeText('lastLoaded',new Date().toLocaleTimeString());
+feed('live','Published');notice('Published to GitHub. The TV app will read this notice when it next checks the feed. Raw-file caching may delay visibility briefly.','good');
+}catch(e){notice(e.message,'err');}finally{busy=false;el('publish').disabled=false;safeText('publish','Publish changes');}}
+['enabled','version','code','url','en','ar'].forEach(function(id){el(id).addEventListener('input',render);});
+el('connect').addEventListener('click',connect);el('token').addEventListener('keydown',function(e){if(e.key==='Enter')connect();});
+el('disconnect').addEventListener('click',disconnect);el('publish').addEventListener('click',publish);
+el('reset').addEventListener('click',function(){if(data){apply(data);notice('Discarded unsaved changes.','');}});
+el('reload').addEventListener('click',function(e){e.preventDefault();load();});
+el('next').addEventListener('click',function(){var p=getForm().tv;el('code').value=Math.max(INSTALLED,Number(p.versionCode)||INSTALLED)+1;var m=/^(\d+)\.(\d+)$/.exec(p.version);if(m)el('version').value=m[1]+'.'+(Number(m[2])+1);el('enabled').checked=true;render();notice('Next version selected. Enter the new release notes and its actual download URL before publishing.','');});
+el('previewEN').addEventListener('click',function(){language='en';render();});el('previewAR').addEventListener('click',function(){language='ar';render();});
+window.addEventListener('pagehide',function(){secret='';});
+render();load();
+})();
+</script>
+</body>
+</html>
