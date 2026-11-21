@@ -1,0 +1,108 @@
+name: Publish CinemanaTV Update Notice
+
+on:
+  workflow_dispatch:
+    inputs:
+      enabled:
+        description: "Show the update notice to users?"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      version:
+        description: "New TV version label (e.g. 1.22)"
+        required: true
+        default: "1.22"
+        type: string
+      version_code:
+        description: "New Android versionCode (must exceed installed build: 127)"
+        required: true
+        default: "128"
+        type: string
+      download_url:
+        description: "Public HTTPS link to the tested APK or its download page"
+        required: true
+        type: string
+      message_en:
+        description: "Message shown to English TV users"
+        required: true
+        default: "A new CinemanaTV update is available."
+        type: string
+      message_ar:
+        description: "Message shown to Arabic TV users"
+        required: true
+        default: "يتوفر تحديث جديد لسينمانا على التلفزيون."
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cinemanatv-update-notice
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          ref: main
+      - name: Validate and publish TV update notice
+        env:
+          TV_ENABLED: ${{ inputs.enabled }}
+          TV_VERSION: ${{ inputs.version }}
+          TV_VERSION_CODE: ${{ inputs.version_code }}
+          TV_DOWNLOAD_URL: ${{ inputs.download_url }}
+          TV_MESSAGE_EN: ${{ inputs.message_en }}
+          TV_MESSAGE_AR: ${{ inputs.message_ar }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from urllib.parse import urlsplit
+
+          enabled = os.environ["TV_ENABLED"].strip() == "true"
+          version = os.environ["TV_VERSION"].strip()
+          raw_code = os.environ["TV_VERSION_CODE"].strip()
+          url = os.environ["TV_DOWNLOAD_URL"].strip()
+          en = os.environ["TV_MESSAGE_EN"].strip()
+          ar = os.environ["TV_MESSAGE_AR"].strip()
+          if not raw_code.isdecimal(): raise SystemExit("version_code must be an integer")
+          code = int(raw_code)
+          if not 1 <= len(version) <= 32: raise SystemExit("version must contain 1-32 characters")
+          if code < 128: raise SystemExit("The new Android versionCode must be >= 128")
+          if len(en) > 240 or len(ar) > 240:
+              raise SystemExit("Notification messages must not exceed 240 characters")
+          parsed = urlsplit(url)
+          if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password or len(url) > 2047:
+              raise SystemExit("download_url must be a public HTTPS URL")
+          payload = {
+              "schema": 1,
+              "tv": {
+                  "enabled": enabled,
+                  "version": version,
+                  "versionCode": code,
+                  "downloadUrl": url,
+                  "notes": {"en": en, "ar": ar},
+              },
+          }
+          dest = Path("updates/tv.json")
+          dest.parent.mkdir(parents=True, exist_ok=True)
+          dest.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          print("Validated update notice for TV version", version, "(versionCode", code, ")")
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add updates/tv.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish CinemanaTV update notice: ${{ inputs.version }}"
+            git push origin main
+          else
+            echo "Update manifest is already current."
+          fi
