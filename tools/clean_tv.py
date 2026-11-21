@@ -73,7 +73,38 @@ def player(s):
   ('Text(t(if (checkingAlternative) "Checking alternative source…" else "Playback unavailable"),','Text(t("Playback unavailable"),')]: s=rep(s,a,b)
  return s
 modify('ui/Player.kt',player)
+def episode_parser(s):
+ s=rep(s,'"episodes", "season", "files"', '"episodes", "season", "seasons", "episodeList", "videoSeason", "videoSeasons", "files"')
+ s=rep(s,'if (depth > 5 || results.size >= maxItems) return','if (depth > (10 if maxItems > 120 else 5) || results.size >= maxItems) return')
+ return s
+modify('data/Payloads.kt',episode_parser)
+
 p=root/'app/build.gradle.kts'; p.write_text(p.read_text().replace('versionCode = 125','versionCode = 126').replace('versionName = "1.4.3"','versionName = "1.4.4"'))
+
+p=root/'app/src/test/java/app/cinemanatv/data/PayloadsTest.kt'
+s=p.read_text()
+test='''    @Test fun returnsEveryEpisodeFromNestedSeasons() {
+        val episodes = com.google.gson.JsonArray()
+        (1..320).forEach { index ->
+            val ep = com.google.gson.JsonObject()
+            ep.addProperty("nb", index.toString())
+            ep.addProperty("en_title", "Episode " + index)
+            ep.addProperty("season", ((index - 1) / 80 + 1).toString())
+            ep.addProperty("episodeNummer", ((index - 1) % 80 + 1).toString())
+            episodes.add(ep)
+        }
+        val payload = JsonParser.parseString("""{"result":{"data":{"seasons":[{"episodes":[]}]}}}""").asJsonObject
+        payload.getAsJsonObject("result").getAsJsonObject("data").getAsJsonArray("seasons")[0]
+            .asJsonObject.add("episodes", episodes)
+        val found = Payloads.videos(payload, maxItems = 5_000)
+        assertEquals(320, found.size)
+        assertEquals(4, found.last().seasonNumber)
+    }
+
+'''
+s=rep(s,'    @Test fun parsesReferenceModelFieldNames() {',test+'    @Test fun parsesReferenceModelFieldNames() {')
+p.write_text(s)
+
 terms=['CeeAlternativeSource','CeeWebRoutes','CeeWebScreen','AlternativeSourceDialog','Screen.Web','onAlternativePlay','onWebFallback','checkingAlternative','alternativeAttempted']
 assert not [(p,t) for p in base.rglob('*.kt') for t in terms if t in p.read_text()]
 print('Cleaned TV source; episode limit 5000')
