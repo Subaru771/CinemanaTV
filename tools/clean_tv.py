@@ -79,7 +79,13 @@ def episode_parser(s):
  return s
 modify('data/Payloads.kt',episode_parser)
 
-p=root/'app/build.gradle.kts'; p.write_text(p.read_text().replace('versionCode = 125','versionCode = 126').replace('versionName = "1.4.3"','versionName = "1.4.4"'))
+p=root/'app/build.gradle.kts'
+gradle = p.read_text()
+gradle = rep(gradle, 'versionCode = 125', 'versionCode = 127')
+gradle = rep(gradle, 'versionName = "1.4.3"', 'versionName = "1.21"')
+gradle = rep(gradle, 'https://cinemana-updates-e8l.pages.dev/updates.json', 'https://raw.githubusercontent.com/Subaru771/CinemanaTV/main/updates/tv.json')
+p.write_text(gradle)
+
 
 p=root/'app/src/test/java/app/cinemanatv/data/PayloadsTest.kt'
 s=p.read_text()
@@ -114,4 +120,4 @@ p.write_text(q)
 
 terms=['CeeAlternativeSource','CeeWebRoutes','CeeWebScreen','AlternativeSourceDialog','Screen.Web','onAlternativePlay','onWebFallback','checkingAlternative','alternativeAttempted']
 assert not [(p,t) for p in base.rglob('*.kt') for t in terms if t in p.read_text()]
-print('Cleaned TV source; episode limit 5000')
+print('CinemanaTV v1.21 native-only; episode limit 5000; owner-editable HTTPS update feed enabled')
