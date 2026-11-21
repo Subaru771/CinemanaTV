@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1015">
+<title>Cinemana Updates · Control</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:#0b1015;color:#e8eef0;font-size:14px}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -25%,#20362f,transparent 70%)}
+a{color:#91dec3}button,input,textarea{font:inherit}button{cursor:pointer}.wrap{max-width:1120px;padding:32px 20px 70px;margin:auto}
+header{display:flex;align-items:center;gap:12px;margin-bottom:27px}.mark{width:44px;height:44px;border-radius:13px;background:#193f37;color:#9df3cd;display:grid;place-items:center;font-size:26px;font-weight:800}
+h1{font-size:20px;letter-spacing:-.5px;margin:0}.sub{font-size:12px;color:#8da3a2;margin-top:5px}.grow{flex:1}
+.status{background:#19272b;color:#accac2;border:1px solid #34534b;border-radius:25px;font-size:11px;font-weight:750;padding:8px 12px}.status.error{color:#ffa7a7;border-color:#945452}.status.ok{color:#a1e5c9}
+.grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(290px,.88fr);gap:17px;align-items:start}
+.card{background:#121c20;border:1px solid #293a3c;border-radius:17px;overflow:hidden}.head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:18px 20px 15px;border-bottom:1px solid #26363b}
+h2{font-size:15px;margin:0;letter-spacing:-.2px}.tabs{display:flex;gap:6px}.tab{background:transparent;color:#8ea8a8;border:1px solid #324345;border-radius:9px;padding:8px 12px;font-weight:700;font-size:12px}.tab.active{color:#091f18;background:#9ce3c7;border-color:#9ce3c7}
+.pad{padding:0 20px 20px}.toggle{display:flex;align-items:center;gap:12px;background:#142c29;border:1px solid #30564a;border-radius:12px;padding:14px;margin:18px 0 0}
+.toggle div:first-child{flex:1}.toggle strong{display:block}.toggle small{display:block;color:#91aca4;line-height:1.5;margin-top:4px}
+.toggle input{width:23px;height:23px;accent-color:#8ce0b9;cursor:pointer}.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:7px;margin-top:16px}.field label{font-size:12px;font-weight:720;color:#cadae0}
+.field input,.field textarea,.auth input{width:100%;min-width:0;background:#0a1317;border:1px solid #35484c;border-radius:10px;outline:0;padding:11px 12px;color:#edf4f4}
+.field textarea{min-height:83px;resize:vertical;line-height:1.5}
+.field input:focus,.field textarea:focus,.auth input:focus{border-color:#75caa8;box-shadow:0 0 0 3px #75caa818}
+small.hint{color:#879c9c;line-height:1.45;font-size:11px}
+button{background:#213235;border:1px solid #3b5254;border-radius:10px;color:#e9f1f1;padding:11px 14px;font-weight:700}button:hover{filter:brightness(1.1)}button:disabled{opacity:.55;cursor:wait}
+button.primary{background:#8fdfbd;border-color:#8fdfbd;color:#0b241b}.actions{display:flex;gap:9px;margin-top:22px}.actions button:first-child{flex:1}
+.alert{display:none;margin-top:14px;padding:11px 12px;border-radius:10px;border:1px solid #55656c;background:#1d2b30;color:#c9dee1;font-size:12px;line-height:1.55;white-space:pre-line}.alert.error{color:#ffc6bf;border-color:#834c4c}.alert.good{color:#a8efcc;border-color:#416d58}
+.auth{margin:19px 0 0;padding:16px 20px 20px;border-top:1px solid #2a373c}.authrow{display:flex;gap:8px;margin-top:10px}
+.preview{position:sticky;top:20px}.previewbox{padding:19px}.screen{background:radial-gradient(ellipse at 35% 20%,#264743,#0b151c 80%);border:1px solid #3c5554;border-radius:13px;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;padding:18px}
+.popup{width:min(100%,340px);border:1px solid #546564;border-radius:12px;background:#19252a;padding:19px;box-shadow:0 18px 45px #0008}.popup .h{font-weight:800;font-size:16px}.popup .v{font-size:11px;color:#9fdcbe;margin-top:7px}.popup .n{font-size:12px;color:#bacbcc;white-space:pre-line;margin:13px 0 16px;line-height:1.5;max-height:110px;overflow:auto}
+.popup .buttons{display:flex;gap:5px}.popup .buttons span{flex:1;border:1px solid #486164;border-radius:6px;padding:8px 3px;text-align:center;font-size:10px;font-weight:700}.popup .buttons span:first-child{background:#a0e0c9;border-color:#a0e0c9;color:#11271f}
+.off{opacity:.38}.info{padding:17px 19px;border-top:1px solid #293a3c;color:#91a9a8;font-size:12px;line-height:1.7}
+.kv{display:flex;justify-content:space-between;gap:12px;margin-top:8px}.kv b{color:#d6e7e6;font-weight:620}.links{margin-top:12px;display:flex;flex-wrap:wrap;gap:13px}
+footer{font-size:11px;color:#798d92;display:flex;justify-content:space-between;gap:12px;margin-top:22px}
+@media(max-width:790px){.grid{grid-template-columns:1fr}.preview{position:static}.wrap{padding:19px 13px 42px}footer{flex-direction:column}}
+@media(max-width:425px){.head{padding:15px}.pad{padding:0 15px 16px}.auth{padding:15px}.pair{grid-template-columns:1fr}.screen{aspect-ratio:1/.88}.popup{padding:12px}.popup .buttons span{font-size:9px}}
+</style>
+</head><body>
+<div class="wrap">
+<header><div class="mark">▸</div><div><h1>Cinemana <span style="color:#8ee3bd">Updates</span></h1><div class="sub">Control center · TV and iOS releases</div></div><div class="grow"></div><span id="status" class="status">Loading…</span></header>
+<div class="grid">
+<section class="card">
+  <div class="head"><h2>Update announcement</h2><div class="tabs" role="group" aria-label="Platform"><button id="tab-tv" class="tab active" type="button">📺 TV</button><button id="tab-ios" class="tab" type="button">📱 iOS</button></div></div>
+  <div class="pad">
+    <label class="toggle"><div><strong>Enable notification</strong><small>Appears when users open the app and a newer version is available.</small></div><input id="enabled" type="checkbox" aria-label="Enable notification for selected platform"></label>
+    <div class="pair"><div class="field"><label for="version">Version</label><input id="version" spellcheck="false" placeholder="1.22" maxlength="32"></div><div class="field"><label id="number-label" for="number">Android version code</label><input id="number" type="number" min="1" max="2147483647" step="1" inputmode="numeric" placeholder="128"></div></div>
+    <small class="hint" id="version-hint">TV v1.21 is Android code 127; announce v1.22 with code 128 or greater.</small>
+    <div class="field"><label for="url">Public HTTPS download link</label><input id="url" type="url" placeholder="https://…" spellcheck="false"><small class="hint">The link must lead to a real, tested APK/IPA or download page.</small></div>
+    <div class="field"><label for="en">English release message</label><textarea id="en" maxlength="240" placeholder="What changed in this version?"></textarea></div>
+    <div class="field"><label for="ar">Arabic release message</label><textarea id="ar" maxlength="240" lang="ar" dir="rtl" placeholder="شنو الجديد بهذا التحديث؟"></textarea></div>
+    <div class="actions"><button class="primary" id="publish">Publish changes</button><button id="reset">Discard</button><button id="next">Next version</button></div>
+    <div class="alert" role="status" aria-live="polite" id="alert"></div>
+  </div>
+  <div class="auth">
+    <strong style="font-size:12px">GitHub publishing authorization</strong>
+    <div class="sub" style="line-height:1.6">Connect with a fine-grained token restricted to <strong>Subaru771/CinemanaTV → Contents: Read &amp; write</strong>. The token stays in memory in this tab and is not saved.</div>
+    <div id="authrow" class="authrow"><input id="token" type="password" autocomplete="off" placeholder="github_pat_…" aria-label="Fine-grained GitHub token"><button id="connect">Connect</button></div>
+    <div id="connected" hidden style="margin-top:12px;color:#94dec0;font-size:12px">● Connected <button id="disconnect" style="float:right">Disconnect</button></div>
+    <div class="links"><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create GitHub token</a><a href="https://github.com/Subaru771/CinemanaTV/actions/workflows/deploy-existing-cloudflare-updates.yml" target="_blank" rel="noopener">Deployment status</a></div>
+  </div>
+</section>
+<aside class="preview"><section class="card"><div class="head"><h2>Live popup preview</h2><div class="tabs" role="group" aria-label="Preview language"><button class="tab active" id="lang-en">EN</button><button class="tab" id="lang-ar">عربي</button></div></div>
+<div class="previewbox"><div class="screen"><div id="popup" class="popup"><div class="h" id="p-title"></div><div class="v" id="p-version"></div><div class="n" id="p-notes"></div><div class="buttons" id="p-buttons"></div></div></div>
+<div class="sub" style="margin-top:12px">Preview updates as you edit. Changes are public only after a successful Cloudflare deployment.</div></div>
+<div class="info">
+ <div style="font-weight:750;color:#cadfd9">Production feed</div>
+ <div class="kv"><span>Site</span><b>cinemana-updates-e8l</b></div>
+ <div class="kv"><span>TV</span><b id="live-tv">Loading…</b></div>
+ <div class="kv"><span>iOS</span><b id="live-ios">Loading…</b></div>
+ <div class="links"><a href="/updates.json" target="_blank" rel="noopener">View updates.json</a><a href="#" id="reload">Refresh</a></div>
+</div></section></aside>
+</div>
+<footer><span>In-app update notices, not background push notifications.</span><span>Source: GitHub · Hosting: Cloudflare Pages</span></footer>
+</div>
+<script>
+(function(){
+'use strict';
+const REPO='Subaru771/CinemanaTV', FILE='updates/cloudflare.json', BRANCH='main';
+const API='https://api.github.com/repos/'+REPO+'/contents/'+FILE;
+const RAW='https://raw.githubusercontent.com/'+REPO+'/'+BRANCH+'/'+FILE;
+const $=id=>document.getElementById(id);
+let platform='tv',lang='en',credential='',published=null,editor=null,commitSha=null,loading=false;
+const empty={schema:1,tv:{enabled:false,version:'1.21',versionCode:127,downloadUrl:'https://github.com/Subaru771/CinemanaTV',notes:{en:'',ar:''}},ios:{enabled:false,version:'',build:0,downloadUrl:'',notes:{en:'',ar:''}}};
+const clone=o=>JSON.parse(JSON.stringify(o));
+function status(s,err=false){$('status').textContent=s;$('status').className='status '+(err?'error':'ok');}
+function alertBox(s,type=''){const n=$('alert');n.textContent=s;n.className='alert '+type;n.style.display='block';}
+function base64Encode(s){const a=new TextEncoder().encode(s);let b='';for(const c of a)b+=String.fromCharCode(c);return btoa(b);}
+function base64Decode(s){const b=atob(s.replace(/\s/g,'')),a=Uint8Array.from(b,c=>c.charCodeAt(0));return new TextDecoder().decode(a);}
+const auth=()=>({'Accept':'application/vnd.github+json','Authorization':'Bearer '+credential,'X-GitHub-Api-Version':'2022-11-28'});
+function validData(v){return !!(v&&v.schema===1&&v.tv&&v.ios&&typeof v.tv==='object'&&typeof v.ios==='object');}
+function normalize(x){if(!validData(x))throw Error('The update feed must contain schema 1, TV and iOS.');const y=clone(x);for(const p of ['tv','ios']){y[p].enabled=y[p].enabled===true;y[p].notes=y[p].notes||{en:'',ar:''};}return y;}
+function fieldToState(){if(!editor)return;const p=editor[platform];p.enabled=$('enabled').checked;p.version=$('version').value;p[platform==='tv'?'versionCode':'build']=Number($('number').value);p.downloadUrl=$('url').value;p.notes.en=$('en').value;p.notes.ar=$('ar').value;}
+function showEditor(){const p=editor[platform];$('enabled').checked=p.enabled;$('version').value=p.version||'';$('number').value=p[platform==='tv'?'versionCode':'build']||'';$('url').value=p.downloadUrl||'';$('en').value=p.notes.en||'';$('ar').value=p.notes.ar||'';$('number-label').textContent=platform==='tv'?'Android version code':'iOS build number';
+$('version-hint').textContent=platform==='tv'?'TV v1.21 is Android code 127; announce a newer version using code 128 or higher.':'Use the actual iOS version and build number from the released IPA.';
+$('tab-tv').classList.toggle('active',platform==='tv');$('tab-ios').classList.toggle('active',platform==='ios');render();}
+function render(){if(!editor)return;const p=editor[platform],text=p.notes[lang]||'No release notes yet.';
+$('popup').classList.toggle('off',!p.enabled);$('popup').dir=lang==='ar'?'rtl':'ltr';
+$('p-title').textContent=lang==='ar'?'تحديث جديد متوفر':'Update available';
+$('p-version').textContent=(lang==='ar'?'الإصدار ':'Version ')+(p.version||'—');
+$('p-notes').textContent=text;
+const b=$('p-buttons');b.replaceChildren();(lang==='ar'?['تحميل','لاحقاً','تخطي']:['Download','Later','Skip']).forEach(t=>{const item=document.createElement('span');item.textContent=t;b.appendChild(item);});
+$('lang-en').classList.toggle('active',lang==='en');$('lang-ar').classList.toggle('active',lang==='ar');}
+function bindInputs(){for(const id of ['enabled','version','number','url','en','ar'])$(id).addEventListener('input',()=>{fieldToState();render();});}
+function validate(x){for(const key of ['tv','ios']){const p=x[key],n=p[key==='tv'?'versionCode':'build'];
+if(!p.version||p.version.length>32){if(p.enabled)return key.toUpperCase()+': enter a release version.';continue;}
+if(!Number.isSafeInteger(n)||n<1||n>2147483647){if(p.enabled)return key.toUpperCase()+': enter a valid version/build code.';continue;}
+if(p.enabled){try{const u=new URL(p.downloadUrl);if(u.protocol!=='https:'||!u.hostname||u.username||u.password)throw Error('invalid');}catch(e){return key.toUpperCase()+': provide an HTTPS download URL.';}
+if(!p.notes.en.trim()||!p.notes.ar.trim())return key.toUpperCase()+': both languages are required.';
+if(key==='tv'&&n<=127)return 'TV: v1.21 already has versionCode 127. Use code 128+ to notify it.';}
+for(const note of [p.notes.en,p.notes.ar])if(note.length>240)return key.toUpperCase()+': messages must be 240 characters or less.';}
+return null;}
+async function getLive(){const r=await fetch('/updates.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('Cloudflare /updates.json returned '+r.status);return normalize(await r.json());}
+async function getRepo(authenticated){const opts={cache:'no-store'};if(authenticated)opts.headers=auth();const r=await fetch(API+'?ref=main&t='+Date.now(),opts);if(r.status===404)return null;if(!r.ok)throw Error('GitHub feed returned '+r.status);const meta=await r.json();return {data:normalize(JSON.parse(base64Decode(meta.content))),sha:meta.sha};}
+async function load(){if(loading)return;loading=true;status('Loading…');try{
+let live=null,repo=null;
+try{live=await getLive();}catch(e){alertBox('Cloudflare feed is not available: '+e.message+'. The editor will use GitHub data if available.','error');}
+try{repo=await getRepo(false);}catch(e){alertBox('Could not fetch GitHub saved data: '+e.message,'error');}
+if(!repo&&!live)throw Error('No readable update manifest. Do not publish until the production feed is restored.');
+published=clone(repo?repo.data:live);editor=clone(published);commitSha=repo&&repo.sha;
+$('live-tv').textContent=live?(live.tv.version||'—')+(live.tv.enabled?' · ON':' · OFF'):'Unavailable';
+$('live-ios').textContent=live?(live.ios.version||'—')+(live.ios.enabled?' · ON':' · OFF'):'Unavailable';
+showEditor();status(repo?'Editor ready':'Imported live feed');
+}catch(e){status('Cannot load',true);alertBox(e.message,'error');}finally{loading=false;}}
+async function connect(){const t=$('token').value.trim();if(!t){alertBox('Paste a fine-grained GitHub token.','error');return;}
+$('connect').disabled=true;try{
+const r=await fetch('https://api.github.com/repos/'+REPO,{headers:{Accept:'application/vnd.github+json',Authorization:'Bearer '+t},cache:'no-store'});
+if(!r.ok)throw Error('GitHub authorization failed: '+r.status);credential=t;$('token').value='';$('authrow').hidden=true;$('connected').hidden=false;alertBox('Connected. You can publish updates.','good');
+}catch(e){alertBox(e.message,'error');}finally{$('connect').disabled=false;}}
+function disconnect(){credential='';$('authrow').hidden=false;$('connected').hidden=true;alertBox('Disconnected. Token cleared.');}
+async function publish(){if(!editor)return;fieldToState();const problem=validate(editor);if(problem){alertBox(problem,'error');return;}if(!credential){alertBox('Connect your GitHub token first. Cloudflare is updated by a repository deployment workflow.','error');return;}
+$('publish').disabled=true;try{
+const latest=await getRepo(true);
+if((latest&&latest.sha)!==commitSha)throw Error('Another edit was published. Refresh before saving to avoid replacing it.');
+const content=JSON.stringify(editor,null,2)+'\n';
+const body={message:'Update Cinemana TV and iOS notices',branch:BRANCH,content:base64Encode(content)};
+if(latest)body.sha=latest.sha;
+const r=await fetch(API,{method:'PUT',headers:{...auth(),'Content-Type':'application/json'},body:JSON.stringify(body)});
+if(!r.ok){let problem='';try{problem=(await r.json()).message||'';}catch(e){}throw Error('GitHub refused the update ('+r.status+'): '+problem);}
+const res=await r.json();commitSha=res.content&&res.content.sha;published=clone(editor);
+status('Submitted to deploy');alertBox('Saved to GitHub. The deployment workflow will update this existing Cloudflare Pages project and the TV 1.21 feed after Cloudflare secrets are configured.\nCheck Deployment status for success.','good');
+}catch(e){alertBox(e.message,'error');}finally{$('publish').disabled=false;}}
+$('tab-tv').addEventListener('click',()=>{platform='tv';showEditor();});$('tab-ios').addEventListener('click',()=>{platform='ios';showEditor();});
+$('lang-en').addEventListener('click',()=>{lang='en';render();});$('lang-ar').addEventListener('click',()=>{lang='ar';render();});
+$('reset').addEventListener('click',()=>{if(published){editor=clone(published);showEditor();alertBox('Changes discarded.');}});
+$('next').addEventListener('click',()=>{const p=editor[platform],field=platform==='tv'?'versionCode':'build';const old=p[field]||0;p[field]=Math.max(platform==='tv'?127:0,old)+1;const m=/^(\d+)\.(\d+)$/.exec(p.version);if(m)p.version=m[1]+'.'+(Number(m[2])+1);p.enabled=true;showEditor();alertBox('Next version selected. Set an actual tested download URL and release notes before publishing.');});
+$('reload').addEventListener('click',e=>{e.preventDefault();load();});
+$('publish').addEventListener('click',publish);$('connect').addEventListener('click',connect);$('disconnect').addEventListener('click',disconnect);$('token').addEventListener('keydown',e=>{if(e.key==='Enter')connect();});
+window.addEventListener('pagehide',()=>{credential='';});bindInputs();load();
+})();
+</script>
+</body></html>
