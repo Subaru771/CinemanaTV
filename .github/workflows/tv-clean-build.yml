@@ -1,0 +1,26 @@
+name: Audit CinemanaTV Source
+
+on:
+  push:
+    branches:
+      - build/tv-clean-episodes-fast
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract TV source
+        run: |
+          mkdir -p tv-source
+          unzip -q downloads/CinemanaTV-v1.4.3-SOURCE.zip -d tv-source
+          find tv-source -type f | head -100
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CinemanaTV-source-for-audit
+          path: tv-source/
+          retention-days: 5
