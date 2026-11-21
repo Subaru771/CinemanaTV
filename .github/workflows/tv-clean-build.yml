@@ -1,4 +1,4 @@
-name: CinemanaTV v1.4.4 Native Only + Full Episodes
+name: CinemanaTV v1.21 TV — Clean + Update Notifications
 
 on:
   push:
@@ -37,6 +37,9 @@ jobs:
           PROJECT_DIR="$(dirname "$PROJECT_FILE")"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
           python3 tools/clean_tv.py "$PROJECT_DIR"
+          grep -q 'versionName = "1.21"' "$PROJECT_DIR/app/build.gradle.kts"
+          grep -q 'versionCode = 127' "$PROJECT_DIR/app/build.gradle.kts"
+          grep -q 'raw.githubusercontent.com/Subaru771/CinemanaTV/main/updates/tv.json' "$PROJECT_DIR/app/build.gradle.kts"
           if grep -RE 'CeeAlternativeSource|CeeWebRoutes|CeeWebScreen|AlternativeSourceDialog' "$PROJECT_DIR/app/src/main/java"; then
             echo 'ERROR: Orphaned alternative-source code'
             exit 1
@@ -50,13 +53,13 @@ jobs:
           APK="$(find app/build/outputs/apk/release -type f -name '*.apk' | head -n 1)"
           test -n "$APK"
           mkdir -p "$GITHUB_WORKSPACE/output"
-          cp "$APK" "$GITHUB_WORKSPACE/output/CinemanaTV-v1.4.4-Native-Fast-All-Episodes.apk"
+          cp "$APK" "$GITHUB_WORKSPACE/output/CinemanaTV-v1.21-TV-Fast-All-Episodes.apk"
           cd "$GITHUB_WORKSPACE/output"
           sha256sum *.apk > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: CinemanaTV-v1.4.4-TV-Native-Fast-All-Episodes
+          name: CinemanaTV-v1.21-TV-Fast-All-Episodes
           path: output/
           if-no-files-found: error
           retention-days: 30
