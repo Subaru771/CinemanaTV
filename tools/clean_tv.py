@@ -75,7 +75,7 @@ def player(s):
 modify('ui/Player.kt',player)
 def episode_parser(s):
  s=rep(s,'"episodes", "season", "files"', '"episodes", "season", "seasons", "episodeList", "videoSeason", "videoSeasons", "files"')
- s=rep(s,'if (depth > 5 || results.size >= maxItems) return','if (depth > (10 if maxItems > 120 else 5) || results.size >= maxItems) return')
+ s=rep(s,'if (depth > 5 || results.size >= maxItems) return','if (depth > (if (maxItems > 120) 10 else 5) || results.size >= maxItems) return')
  return s
 modify('data/Payloads.kt',episode_parser)
 
