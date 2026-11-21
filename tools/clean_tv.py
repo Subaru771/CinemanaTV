@@ -105,6 +105,13 @@ test='''    @Test fun returnsEveryEpisodeFromNestedSeasons() {
 s=rep(s,'    @Test fun parsesReferenceModelFieldNames() {',test+'    @Test fun parsesReferenceModelFieldNames() {')
 p.write_text(s)
 
+
+# Remove the obsolete CEE-pairing test, retaining crash-report redaction tests.
+p=root/'app/src/test/java/app/cinemanatv/util/CrashReportsTest.kt'
+q=p.read_text()
+q=cut(q,'    @Test fun confirmedPairingPersistsOnlyAlternativeIdentity()', '    @Test fun savedReportRedactsStreamTokensAndHeaders()')
+p.write_text(q)
+
 terms=['CeeAlternativeSource','CeeWebRoutes','CeeWebScreen','AlternativeSourceDialog','Screen.Web','onAlternativePlay','onWebFallback','checkingAlternative','alternativeAttempted']
 assert not [(p,t) for p in base.rglob('*.kt') for t in terms if t in p.read_text()]
 print('Cleaned TV source; episode limit 5000')
