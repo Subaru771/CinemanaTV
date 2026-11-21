@@ -1,0 +1,50 @@
+name: Validate Cinemana Cloudflare Update Dashboard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare-updates/**'
+      - 'tools/build_existing_cloudflare_updates.py'
+      - 'tests/test_existing_cloudflare_updates.py'
+      - '.github/workflows/validate-cloudflare-updates.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test two-channel update manifest validation
+        run: python3 -m unittest discover -s tests -p test_existing_cloudflare_updates.py -v
+      - name: JavaScript syntax and static site checks
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('cloudflare-updates/index.html').read_text(encoding='utf-8')
+          js = re.findall(r'<script>(.*?)</script>', html, re.S)
+          assert len(js) == 1, "Exactly one script is expected"
+          Path('/tmp/cinemana-cloudflare-admin.js').write_text(js[0], encoding='utf-8')
+          for token in ['tab-tv','tab-ios','/updates.json','updates/cloudflare.json']:
+              assert token in html, token
+          PY
+          node --check /tmp/cinemana-cloudflare-admin.js
+      - name: Archive deployable site source (not production)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cinemana-Updates-Cloudflare-Site-SOURCE
+          path: |
+            cloudflare-updates/index.html
+            cloudflare-updates/_headers
+            cloudflare-updates/robots.txt
+            cloudflare-updates/README.md
+            tools/build_existing_cloudflare_updates.py
+          retention-days: 30
