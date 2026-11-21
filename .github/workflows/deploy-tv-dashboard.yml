@@ -31,6 +31,12 @@ jobs:
           cp admin/index.html _site/index.html
           test -s _site/index.html
           printf '' > _site/.nojekyll
+      - name: Package standalone dashboard
+        uses: actions/upload-artifact@v4
+        with:
+          name: CinemanaTV-Interactive-Dashboard
+          path: admin/index.html
+          retention-days: 90
       - uses: actions/configure-pages@v5
         with:
           enablement: true
