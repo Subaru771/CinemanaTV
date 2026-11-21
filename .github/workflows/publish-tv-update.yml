@@ -101,7 +101,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add updates/tv.json
           if ! git diff --cached --quiet; then
-            git commit -m "Publish CinemanaTV update notice: ${{ inputs.version }}"
+            git commit -m "Publish CinemanaTV update notice"
             git push origin main
           else
             echo "Update manifest is already current."
