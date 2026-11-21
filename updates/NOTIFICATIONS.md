@@ -6,7 +6,15 @@
 
 This file controls the in-app **Update available** dialog for TV builds starting with **CinemanaTV 1.21** (Android `versionCode: 127`).
 
-## Publish an update notice
+## Easiest method: publish with a GitHub form
+
+1. Open **[Publish CinemanaTV Update Notice](https://github.com/Subaru771/CinemanaTV/actions/workflows/publish-tv-update.yml)**.
+2. Select **Run workflow**, choose the **main** branch, and enter the new version, Android versionCode, tested APK HTTPS URL, and the English/Arabic message.
+3. Select **enabled = true** only when the APK is available, then select **Run workflow** again to confirm.
+
+The workflow validates the inputs and updates `updates/tv.json` for you. Leave `enabled = false` to pause notices. Owners with write access to this repository can use the form.
+
+## Publish an update notice manually
 
 1. Build, sign, and **test** the new TV APK. Host the APK somewhere with a persistent public **HTTPS** download URL.
 2. In `updates/tv.json`, set `tv.version` to the new version label (such as `1.22`).
