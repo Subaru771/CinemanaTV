@@ -6,6 +6,8 @@ on:
     branches: [main]
     paths:
       - 'updates/cloudflare.json'
+      - 'cloudflare-updates/**'
+      - '.github/workflows/deploy-existing-cloudflare-updates.yml'
 
 permissions:
   contents: write
